@@ -36,15 +36,6 @@ public class OperationProcessing {
 		List<Instruction>strangeList = new ArrayList<Instruction>();
 		opStringList.stream().filter(s -> !s.contains("-S-") && !s.contains("-B-")).forEach(s -> strangeList.add(new Instruction(s)));
 
-		//not a real need to sort by date
-//		Comparator<Instruction> byInsDate = Comparator.comparing( i -> i.getInsDate());
-//		Comparator<Instruction> bySetDate = Comparator.comparing( i -> i.getSetDate());
-//		inList = opStringList.stream().filter(s -> s.contains("-B-")).map(s -> new Instruction(s)).sorted(byInsDate.thenComparing( bySetDate)).collect(Collectors.toList());
-//		outList = opStringList.stream().filter(s -> s.contains("-S-")).map(s -> new Instruction(s)).sorted(byInsDate.thenComparing( bySetDate)).collect(Collectors.toList());
-
-		//Buy = Outgoing
-		//removed weekend check from instruction date
-		//moved weekend check from Xmit string to Instruction constructor
 		inList = opStringList.stream().filter(s -> s.contains("-S-")).map(s -> new Instruction(s)).collect(Collectors.toList());
 		outList = opStringList.stream().filter(s -> s.contains("-B-")).map(s -> new Instruction(s)).collect(Collectors.toList());
 		
@@ -73,7 +64,7 @@ public class OperationProcessing {
 		System.out.println();
 		System.out.println("Entity Sell Rank");
 		AtomicInteger count=new AtomicInteger(0);
-		rankIn.forEach((k,v) -> System.out.println(count.incrementAndGet()+" "+k+" "+v));
+		rankIn.forEach((k,v) -> System.out.println(count.incrementAndGet()+" "+v+" "+k));
 		
 		Map<String, Optional<Instruction>> maxOut = outList.stream()
 				.collect(Collectors.groupingBy(Instruction::getEntity, 
@@ -85,7 +76,7 @@ public class OperationProcessing {
 		System.out.println();
 		System.out.println("Entity Buy Rank");
 		count.set(0);
-		rankOut.forEach((k,v) -> System.out.println(count.incrementAndGet()+" "+k+" "+v));
+		rankOut.forEach((k,v) -> System.out.println(count.incrementAndGet()+" "+v+" "+k));
 				
 	}
 	

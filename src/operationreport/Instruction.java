@@ -5,6 +5,8 @@ import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.util.Locale;
+import java.util.Random;
+import java.util.function.IntBinaryOperator;
 
 public class Instruction {
 	
@@ -24,33 +26,50 @@ public class Instruction {
 
 	//to create incoming messages
 	public Instruction() {
+		Random r = new Random();
 		
-		setEntity( Name.values()[ Helper.getRandom( 0, Name.values().length-1)].toString());
+		IntBinaryOperator ibo = (min, max) -> {
+			if (min >= max) {
+				throw new IllegalArgumentException("max must be greater than min");
+			}
+			return r.nextInt((max - min) + 1) + min;
+		};
 		
-		int type = Helper.getRandom(0, 1);
+		//setEntity( Name.values()[ Helper.getRandom( 0, Name.values().length-1)].toString());
+		setEntity( Name.values()[ ibo.applyAsInt( 0, Name.values().length-1)].toString());
+		
+		//int type = Helper.getRandom(0, 1);
+		int type = ibo.applyAsInt( 0, 1);
+		
 		setOperationType( (type == 0 ? "B" : "S"));
-		setCurrency( Currency.values()[ Helper.getRandom( 0, Currency.values().length-1)]);
+		//setCurrency( Currency.values()[ Helper.getRandom( 0, Currency.values().length-1)]);
+		setCurrency( Currency.values()[ ibo.applyAsInt( 0, Currency.values().length-1)]);
 		
 		//on sell random plus from 2% to 10%, on buy the same but 'minus'
-		double percent = getCurrency().rate * (double) Helper.getRandom( 2, 10) / 100.0;
+		//double percent = getCurrency().rate * (double) Helper.getRandom( 2, 10) / 100.0;
+		double percent = getCurrency().rate * (double) ibo.applyAsInt( 2, 10) / 100.0;
 		if( getOperationType() == "B") percent = -percent;
 		double sellRate = getCurrency().rate + percent;
 		setAgreedFx( sellRate);
 		
 		//instruction date random from 1 to 30 days from today + skip weekend
 		LocalDate instrDt = LocalDate.now();
-		instrDt = instrDt.plusDays( Helper.getRandom( 1, 30));
+		//instrDt = instrDt.plusDays( Helper.getRandom( 1, 30));
+		instrDt = instrDt.plusDays( ibo.applyAsInt( 1, 30));
 		//instrDt = checkWeekend( instrDt);
 		setInsDate( instrDt);
 
 		//settlement date random from 1 to 3 days after instruction date + skip weekend
 		LocalDate settleDt = getInsDate();
-		settleDt = settleDt.plusDays( Helper.getRandom( 1, 3));
+		//settleDt = settleDt.plusDays( Helper.getRandom( 1, 3));
+		settleDt = settleDt.plusDays( ibo.applyAsInt( 1, 3));
 		//settleDt = checkWeekend( settleDt);
 		setSetDate( settleDt);
 		
-		setUnitQty( Helper.getRandom(1, 10) * 50);
-		double price = (Helper.getRandom(1, 10) * 500 + Helper.getRandom(1, 20) * 5) / 100.0;
+		//setUnitQty( Helper.getRandom(1, 10) * 50);
+		setUnitQty( ibo.applyAsInt( 1, 10) * 50);
+		//double price = (Helper.getRandom(1, 10) * 500 + Helper.getRandom(1, 20) * 5) / 100.0;
+		double price = (ibo.applyAsInt( 1, 10) * 500 + ibo.applyAsInt( 1, 20) * 5) / 100.0;
 		setUnitPrice(price);
 		
 		appendChunks();
@@ -119,7 +138,6 @@ public class Instruction {
 		return date;
 	}
 
-	
 	public String getEntity() {
 		return entity;
 	}
@@ -149,32 +167,32 @@ public class Instruction {
 		return new Double( unitQty * unitPrice * agreedFx);
 	}
 	
-	protected void setEntity(String entity) {
+	public void setEntity(String entity) {
 		this.entity = entity;
 	}
-	protected void setOperationType(String operationType) {
+	public void setOperationType(String operationType) {
 		this.operationType = operationType;
 	}
-	protected void setAgreedFx(double agreedFx) {
+	public void setAgreedFx(double agreedFx) {
 		this.agreedFx = agreedFx;
 	}
-	protected void setCurrency(Currency currency) {
+	public void setCurrency(Currency currency) {
 		this.currency = currency;
 	}
-	protected void setInsDate(LocalDate instructionDate) {
+	public void setInsDate(LocalDate instructionDate) {
 		this.insDate = instructionDate;
 	}
-	protected void setSetDate(LocalDate settlementDate) {
+	public void setSetDate(LocalDate settlementDate) {
 		this.setDate = settlementDate;
 	}
-	protected void setUnitQty(int unitQty) {
+	public void setUnitQty(int unitQty) {
 		this.unitQty = unitQty;
 	}
-	protected void setUnitPrice(double unitPrice) {
+	public void setUnitPrice(double unitPrice) {
 		this.unitPrice = unitPrice;
 	}
 	
-	protected void appendChunk(String chunk) {
+	public void appendChunk(String chunk) {
 		if(buffInstruction == null) {
 			buffInstruction = new StringBuffer();
 		}
@@ -184,5 +202,5 @@ public class Instruction {
 	protected String getInstructionAsString() {
 		return buffInstruction.toString();
 	};
-
+	
 }
